@@ -9,9 +9,7 @@ phases:
       - npm install -g snyk --unsafe-perm
       - apt-get update
       - apt-get install -y wget
-      - wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Core.zip
-      - mkdir zap
-      - unzip ZAP_2.16.0_Core.zip -d zap
+      - apt-get install -y docker.io  # Install Docker
   pre_build:
     commands:
       - echo "Authenticating Snyk..."
@@ -23,13 +21,8 @@ phases:
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
       - snyk test
-      - echo "Running OWASP ZAP..."
-      - zap/zap.sh -daemon -port 8080 &
-      - sleep 60  # Allow extra time for ZAP to start
-      - echo "Running ZAP scan..."
-      - zap-cli status -vv  # Check ZAP status
-      - zap-cli quick-scan https://example.com  # Replace with your actual URL
-      - zap-cli report -o zap/zap-report.html -f html
+      - echo "Running OWASP ZAP using Docker..."
+      - docker run -v $(pwd)/zap:/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
       - echo "ZAP scan completed. Listing zap directory contents..."
       - ls -la zap  # Verify the ZAP report generation
   post_build:
