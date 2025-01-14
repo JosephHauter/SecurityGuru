@@ -9,9 +9,7 @@ phases:
       - npm install -g snyk --unsafe-perm
       - apt-get update
       - apt-get install -y wget
-      - apt-get install -y openjdk-17-jdk
-      - apt-get install -y python3-pip
-      - pip3 install zapcli
+      - apt-get install -y docker.io  # Install Docker
   pre_build:
     commands:
       - echo "Authenticating Snyk..."
@@ -23,22 +21,16 @@ phases:
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
       - snyk test
-      - echo "Running OWASP ZAP..."
-      - zap-cli start
-      - sleep 60  # Allow extra time for ZAP to start
-      - zap-cli status -vv  # Check ZAP status
-      - zap-cli open-url https://example.com  # Replace with your actual URL
-      - zap-cli spider https://example.com  # Replace with your actual URL
-      - zap-cli active-scan https://example.com  # Replace with your actual URL
-      - zap-cli report -o zap-report.html -f html
-      - zap-cli stop
-      - echo "ZAP scan completed. Listing current directory contents..."
-      - ls -la  # Verify the ZAP report generation
+      - echo "Running OWASP ZAP using Docker..."
+      - mkdir -p zap  # Ensure the 'zap' directory exists
+      - docker run --rm -v $(pwd)/zap:/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
+      - echo "ZAP scan completed. Listing zap directory contents..."
+      - ls -la zap  # Verify the ZAP report generation
   post_build:
     commands:
       - echo "Verifying ZAP report..."
-      - ls -la  # List contents of the current directory to verify the report file
+      - ls -la zap  # List contents of the 'zap' directory to verify the report file
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
-    - zap-report.html
+    - zap/zap-report.html
