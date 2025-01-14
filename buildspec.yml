@@ -4,9 +4,20 @@ phases:
   install:
     runtime-versions:
       java: latest
+    commands:
+      - echo "Installing dependencies..."
+      - npm install -g snyk
   pre_build:
     commands:
+      - echo "Authenticating Snyk..."
+      - snyk auth $SNYK_TOKEN
       - echo "SONAR_TOKEN is set"
   build:
     commands:
+      - echo "Running SonarQube analysis..."
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
+      - echo "Running Snyk security scan..."
+      - snyk test
+  post_build:
+    commands:
+      - echo "Build, SonarQube analysis, and Snyk security scan completed."
