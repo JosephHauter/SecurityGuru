@@ -27,7 +27,9 @@ phases:
       - zap/zap.sh -daemon -port 8080 &
       - sleep 60  # Allow extra time for ZAP to start
       - echo "Running ZAP scan..."
-      - zap/zap.sh -cmd -quickurl https://example.com -quickout zap/zap-report.html  # Replace with your actual URL
+      - zap-cli status -vv  # Check ZAP status
+      - zap-cli quick-scan https://example.com  # Replace with your actual URL
+      - zap-cli report -o zap/zap-report.html -f html
       - echo "ZAP scan completed. Listing zap directory contents..."
       - ls -la zap  # Verify the ZAP report generation
   post_build:
