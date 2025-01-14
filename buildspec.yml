@@ -10,9 +10,9 @@ phases:
       - apt-get update
       - apt-get install -y wget
       - apt-get install -y openjdk-8-jdk
-      - wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Linux.tar.gz
+      - wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Core.zip
       - mkdir zap
-      - tar -xvzf ZAP_2.16.0_Linux.tar.gz -C zap
+      - unzip ZAP_2.16.0_Core.zip -d zap
   pre_build:
     commands:
       - echo "Authenticating Snyk..."
@@ -27,10 +27,10 @@ phases:
       - echo "Running OWASP ZAP..."
       - zap/zap.sh -daemon -port 8080 &
       - sleep 30  # Allow some time for ZAP to start
-      - zap/zap.sh -cmd -quickurl https://example.com -quickout zap-report.html  # Replace with your actual URL
+      - zap/zap.sh -cmd -quickurl https://example.com -quickout zap/zap-report.html  # Ensure report is generated in 'zap' directory
   post_build:
     commands:
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
-    - zap-report.html
+    - zap/zap-report.html
