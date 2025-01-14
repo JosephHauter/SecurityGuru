@@ -21,12 +21,12 @@ phases:
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
       - snyk test
-      - echo "Creating zap directory..."
-      - mkdir -p zap  # Ensure the 'zap' directory exists
       - echo "Running OWASP ZAP using Docker..."
+      - mkdir -p zap  # Ensure the 'zap' directory exists
       - docker run --rm -v $(pwd)/zap:/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
       - echo "ZAP scan completed. Listing zap directory contents..."
       - ls -la zap  # Verify the ZAP report generation
+      - cat zap/zap-report.html  # Display the content of the ZAP report for verification
   post_build:
     commands:
       - echo "Verifying ZAP report..."
