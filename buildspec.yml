@@ -8,7 +8,6 @@ phases:
       - echo "Installing dependencies..."
       - npm install -g snyk --unsafe-perm
       - apt-get update
-      - apt-get install -y wget
       - apt-get install -y docker.io  # Install Docker
   pre_build:
     commands:
@@ -22,16 +21,14 @@ phases:
       - echo "Running Snyk security scan..."
       - snyk test
       - echo "Running OWASP ZAP using Docker..."
-      - mkdir -p zap  # Ensure the 'zap' directory exists
-      - docker run --rm -v $(pwd)/zap:/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
-      - echo "ZAP scan completed. Listing zap directory contents..."
-      - ls -la zap  # Verify the ZAP report generation
-      - cat zap/zap-report.html  # Display the content of the ZAP report for verification
+      - docker run --rm -v $(pwd):/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
+      - echo "ZAP scan completed. Listing current directory contents..."
+      - ls -la  # Verify the ZAP report generation
   post_build:
     commands:
       - echo "Verifying ZAP report..."
-      - ls -la zap  # List contents of the 'zap' directory to verify the report file
+      - ls -la  # List contents of the current directory to verify the report file
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
-    - zap/zap-report.html
+    - zap-report.html
