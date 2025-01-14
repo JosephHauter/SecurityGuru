@@ -28,6 +28,7 @@ phases:
       - sleep 60  # Allow extra time for ZAP to start
       - echo "Running ZAP scan..."
       - zap/zap.sh -cmd -quickurl https://example.com -quickout zap/zap-report.html  # Replace with your actual URL
+      - echo "ZAP scan completed. Listing zap directory contents..."
       - ls -la zap  # Verify the ZAP report generation
   post_build:
     commands:
