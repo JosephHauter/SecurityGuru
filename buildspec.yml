@@ -8,26 +8,23 @@ phases:
       - echo "Installing dependencies..."
       - npm install -g snyk --unsafe-perm
       - apt-get update
-      - apt-get install -y docker.io  # Install Docker
+      - apt-get install -y docker.io
   pre_build:
     commands:
       - echo "Authenticating Snyk..."
       - snyk auth $SNYK_TOKEN
-      - echo "SONAR_TOKEN is set"
   build:
     commands:
       - echo "Running SonarQube analysis..."
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
-      - snyk test || true  # Allow the build to continue even if Snyk test fails
+      - snyk test || true
       - echo "Running OWASP ZAP using Docker..."
-      - docker run --rm -v $(pwd):/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html  # Replace with your actual URL
-      - echo "ZAP scan completed. Listing current directory contents..."
-      - ls -la  # Verify the ZAP report generation
+      - docker run --rm -v $(pwd):/zap/wrk -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html
   post_build:
     commands:
       - echo "Verifying ZAP report..."
-      - ls -la  # List contents of the current directory to verify the report file
+      - ls -la
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
