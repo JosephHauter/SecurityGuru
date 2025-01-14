@@ -13,6 +13,9 @@ phases:
     commands:
       - echo "Authenticating Snyk..."
       - snyk auth $SNYK_TOKEN
+      - echo "Creating writable directory for ZAP..."
+      - mkdir -p zap_writable
+      - chmod 777 zap_writable
   build:
     commands:
       - echo "Running SonarQube analysis..."
@@ -20,14 +23,14 @@ phases:
       - echo "Running Snyk security scan..."
       - snyk test || true
       - echo "Running OWASP ZAP using Docker..."
-      - docker run --rm -u $(id -u):$(id -g) -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r zap-report.html
+      - docker run --rm -u $(id -u):$(id -g) -v $(pwd)/zap_writable:/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r /zap/wrk/zap-report.html
       - echo "ZAP scan completed. Listing current directory contents..."
-      - ls -la
+      - ls -la zap_writable
   post_build:
     commands:
       - echo "Verifying ZAP report..."
-      - ls -la
+      - ls -la zap_writable
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
-    - zap-report.html
+    - zap_writable/zap-report.html
