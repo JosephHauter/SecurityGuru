@@ -1,8 +1,12 @@
 version: 0.2
+
 phases:
   install:
     runtime-versions:
       java: latest
+  pre_build:
+    commands:
+      - export SONAR_TOKEN=$(aws secretsmanager get-secret-value --secret-id secret-name --query SecretString --output text | jq -r .SONAR_TOKEN)
   build:
     commands:
-      - mvn verify sonar:sonar -Dsonar.projectKey=projectKey -Dsonar.organization=projectOrg -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=token 
+      - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
