@@ -3,13 +3,12 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: latest
+      java: corretto17
     commands:
       - echo "Installing dependencies..."
       - npm install -g snyk --unsafe-perm
       - apt-get update
       - apt-get install -y wget
-      - apt-get install -y openjdk-8-jdk
       - wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Core.zip
       - mkdir zap
       - unzip ZAP_2.16.0_Core.zip -d zap
@@ -30,6 +29,8 @@ phases:
       - zap/zap.sh -cmd -quickurl https://example.com -quickout zap/zap-report.html  # Ensure report is generated in 'zap' directory
   post_build:
     commands:
+      - echo "Verifying ZAP report..."
+      - ls -la zap  # List contents of the 'zap' directory to verify the report file
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
