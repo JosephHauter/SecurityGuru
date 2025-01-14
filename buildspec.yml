@@ -19,10 +19,8 @@ phases:
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
       - snyk test || true
-      - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull ghcr.io/zaproxy/zaproxy:stable
       - echo "Running OWASP ZAP using Docker..."
-      - docker run --rm -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r zap-report.html
+      - docker run --rm -u $(id -u):$(id -g) -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r zap-report.html
       - echo "ZAP scan completed. Listing current directory contents..."
       - ls -la
   post_build:
