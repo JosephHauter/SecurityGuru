@@ -7,6 +7,11 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - npm install -g snyk
+      - yum install -y wget
+      - yum install -y java-1.8.0-openjdk
+      - wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.1/ZAP_2.11.1_Linux.tar.gz
+      - mkdir zap
+      - tar -xvzf ZAP_2.11.1_Linux.tar.gz -C zap
   pre_build:
     commands:
       - echo "Authenticating Snyk..."
@@ -18,6 +23,13 @@ phases:
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
       - echo "Running Snyk security scan..."
       - snyk test
+      - echo "Running OWASP ZAP..."
+      - zap/zap.sh -daemon -port 8080 &
+      - sleep 30  # Allow some time for ZAP to start
+      - zap/zap.sh -cmd -quickurl https://example.com -quickout zap-report.html  
   post_build:
     commands:
-      - echo "Build, SonarQube analysis, and Snyk security scan completed."
+      - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
+artifacts:
+  files:
+    - zap-report.html
