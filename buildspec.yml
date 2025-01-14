@@ -1,17 +1,12 @@
----
 version: 0.2
+
 phases:
   install:
     runtime-versions:
       java: latest
   pre_build:
     commands:
-      - echo "SONAR_SECRET_NAME is set to: $SONAR_SECRET_NAME"
-      - export SONAR_TOKEN=$(aws secretsmanager get-secret-value --secret-id
-        arn:aws:secretsmanager:us-east-2:137068232647:secret:SONAR_TOKEN-EwpVh8
-        --query SecretString --output text | jq -r .SONAR_TOKEN)
+      - echo "SONAR_TOKEN is set"
   build:
     commands:
-      - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru
-        -Dsonar.organization=devsecopsguru
-        -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
+      - mvn verify sonar:sonar -Dsonar.projectKey=devsecopsguru -Dsonar.organization=devsecopsguru -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN
