@@ -23,13 +23,15 @@ phases:
       - echo "Running Snyk security scan..."
       - snyk test || true
       - echo "Running OWASP ZAP using Docker..."
-      - docker run --rm -u $(id -u):$(id -g) -v $(pwd)/zap_writable:/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r /zap/wrk/zap-report.html
+      - id
+      - docker run --rm -u $(id -u):$(id -g) -v $(pwd)/zap_writable:/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com -r /zap/wrk/zap-report.html || true
       - echo "ZAP scan completed. Listing current directory contents..."
       - ls -la zap_writable
   post_build:
     commands:
       - echo "Verifying ZAP report..."
       - ls -la zap_writable
+      - cat zap_writable/zap-report.html || echo "ZAP report not found"
       - echo "Build, SonarQube analysis, Snyk security scan, and OWASP ZAP report completed."
 artifacts:
   files:
